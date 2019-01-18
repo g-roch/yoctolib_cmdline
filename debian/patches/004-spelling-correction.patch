@@ -1,0 +1,54 @@
+Spelling error upstream correction
+--- a/Sources/YAltitude.cpp
++++ b/Sources/YAltitude.cpp
+@@ -262,7 +262,7 @@
+ 
+   string getMoreInfo()
+   {
+-    return "This allows to compensate for ambient pressure variations and to work in relative mode.";
++    return "This allows one to compensate for ambient pressure variations and to work in relative mode.";
+   }
+ 
+   vector<ArgumentDesc*>* getArgumentDesc()
+--- a/Sources/YColorLedCluster.cpp
++++ b/Sources/YColorLedCluster.cpp
+@@ -2347,7 +2347,7 @@
+ 
+   string getDescription()
+   {
+-    return "Returns a list on 24bit RGB color values with the current colors displayed onthe RGB LEDs.";
++    return "Returns a list on 24bit RGB color values with the current colors displayed on the RGB LEDs.";
+   }
+ 
+   string getMoreInfo()
+--- a/Sources/YPowerSupply.cpp
++++ b/Sources/YPowerSupply.cpp
+@@ -976,7 +976,7 @@
+ 
+   string getDescription()
+   {
+-    return "Performs a smooth transistion of output voltage.";
++    return "Performs a smooth transition of output voltage.";
+   }
+ 
+   string getMoreInfo()
+--- a/Sources/cmdline_common.cpp
++++ b/Sources/cmdline_common.cpp
+@@ -521,7 +521,7 @@
+         if (intArgsUsed)
+             printf("%s", helpformat(2, 2, 79, "Both decimal and hexadecimal syntax are accepted for integer parameters, hexadecimal syntax is 0xffffff or #ffffff or $ffffff").c_str());
+         if (arrayUsed)
+-            printf("%s", helpformat(2, 2, 79, "Array are defined as comma seperated list, without any space").c_str());
++            printf("%s", helpformat(2, 2, 79, "Array are defined as comma separated list, without any space").c_str());
+         printf("\n");
+     }
+ }
+@@ -1845,7 +1845,7 @@
+                 }
+ 
+             // command no found, lets show global help
+-            printf("No help available for %s (unknow command)\n\n", cmd.c_str());
++            printf("No help available for %s (unknown command)\n\n", cmd.c_str());
+             displayFunctionHelp(YapiCommand::execname(argv[0]), function, cmdList);
+             return -1;
+         }

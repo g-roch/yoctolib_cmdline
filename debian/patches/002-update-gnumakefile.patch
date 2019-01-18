@@ -1,0 +1,68 @@
+Update GNUmakefile for use yoctolib from libyocto-dev package and generate manpage
+--- a/Binaries/GNUmakefile
++++ b/Binaries/GNUmakefile
+@@ -83,7 +83,7 @@
+ 
+ YOCTO_SRC = ../Sources/cpplib/
+ 
+-YOCTO_OBJS = yocto_api.o yocto_anbutton.o yocto_carbondioxide.o yocto_colorled.o yocto_current.o yocto_datalogger.o yocto_display.o \
++YOCTO_OBJS = #yocto_api.o yocto_anbutton.o yocto_carbondioxide.o yocto_colorled.o yocto_current.o yocto_datalogger.o yocto_display.o \
+ 	yocto_dualpower.o yocto_files.o yocto_genericsensor.o yocto_hubport.o yocto_humidity.o yocto_led.o yocto_lightsensor.o \
+ 	yocto_network.o yocto_oscontrol.o yocto_power.o yocto_pressure.o yocto_realtimeclock.o yocto_relay.o yocto_servo.o \
+ 	yocto_temperature.o yocto_voc.o yocto_voltage.o yocto_wakeupmonitor.o yocto_wakeupschedule.o yocto_watchdog.o \
+@@ -97,7 +97,7 @@
+ 
+ YAPI_SRC    = $(YOCTO_SRC)yapi/
+ 
+-YAPI_OBJS = yapi.o ystream.o yprog.o ypkt_lin.o ypkt_win.o ypkt_osx.o yfifo.o ykey.o yhash.o yjson.o ytcp.o ymemory.o ythread.o
++YAPI_OBJS = #yapi.o ystream.o yprog.o ypkt_lin.o ypkt_win.o ypkt_osx.o yfifo.o ykey.o yhash.o yjson.o ytcp.o ymemory.o ythread.o
+ 
+ VPATH 		= $(YAPI_SRC) $(CMD_SRC) $(YOCTO_SRC)
+ ALL_H		= $(wildcard $(patsubst %,%*.h,$(subst :, ,$(YAPI_SRC) $(YOCTO_SRC) $(CMD_SRC))))
+@@ -230,18 +230,18 @@
+ 
+ 
+ #link optionsfor each arch
+-LINK_I386 = -lm -lpthread -lusb-1.0
+-LINK_X64 = -lm -lpthread -lusb-1.0
+-LINK_ARMEL = -L$(STAGING_QARM)/usr/lib/ -lm -lpthread -lusb-1.0
+-LINK_ARMHF = -L$(STAGING_ARMHF)/usr/lib/ -lm -lpthread -lusb-1.0
++LINK_I386 = -lyocto -lm
++LINK_X64 = -lyocto -lm
++LINK_ARMEL = -L$(STAGING_QARM)/usr/lib/ -lyocto -lm
++LINK_ARMHF = -L$(STAGING_ARMHF)/usr/lib/ -lyocto -lm
+ ifdef TOOLCHAIN_AARCH64
+-LINK_AARCH64 = -L$(STAGING_AARCH64)/usr/lib/ -lm -lpthread -lusb-1.0
++LINK_AARCH64 = -L$(STAGING_AARCH64)/usr/lib/ -lyocto -lm
+ else
+-LINK_AARCH64 = -lm -lpthread -lusb-1.0
++LINK_AARCH64 = -lyocto -lm
+ endif
+-LINK_MIPS = -L$(MIPS_TARGET_ROOT)/usr/lib/ -lm -lpthread -lusb-1.0
+-LINK_MIPSEL = -L$(MIPSEL_TARGET_ROOT)/usr/lib/ -lm -lpthread -lusb-1.0
+-LINK_OSX = -lstdc++ -framework IOKit -framework CoreFoundation
++LINK_MIPS = -L$(MIPS_TARGET_ROOT)/usr/lib/ -lyocto -lm
++LINK_MIPSEL = -L$(MIPSEL_TARGET_ROOT)/usr/lib/ -lyocto -lm
++LINK_OSX = -lyocto -lstdc++ -framework IOKit -framework CoreFoundation
+ 
+ 
+ fwd: default
+@@ -557,4 +557,17 @@
+ clean_osx: clean_obj_osx
+ 	@rm -rf $(DIR_OSX)
+ 
+-clean: clean_i386 clean_x64 clean_armel clean_armhf clean_aarch64 clean_mips clean_mipsel clean_osx
++clean: clean_i386 clean_x64 clean_armel clean_armhf clean_aarch64 clean_mips clean_mipsel clean_osx clean_man
++
++DEB_BIN_DYN=$(wildcard linux/*/Y*)
++deb_bin_dyn: $(patsubst %,man1/%.1,$(notdir $(DEB_BIN_DYN)))
++
++man1/%.1:
++	@mkdir -p man1
++	help2man --name="Access to a YoctoPuce module ($*)" $(wildcard linux/*/$*) > $@
++man1/YDaisyChain.1:
++	@echo 'ignored $@'
++clean_man:
++	rm -fr man1
++
++

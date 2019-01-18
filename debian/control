@@ -1,0 +1,20 @@
+Source: yoctolib-cmdline
+Section: non-free/misc
+Priority: optional
+Maintainer: Gabriel Roch <gabriel@g-roch.ch>
+Build-Depends:
+   debhelper (>= 10),
+   libyocto-dev
+Standards-Version: 3.9.8
+Homepage: https://www.yoctopuce.com/
+#Vcs-Git: https://anonscm.debian.org/collab-maint/yoctolib-cmdline.git
+#Vcs-Browser: https://anonscm.debian.org/cgit/collab-maint/yoctolib-cmdline.git
+
+Package: yoctolib-cmdline
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Commandeline for access to YoctoPuce module
+ Yoctopuce designs, manufactures and sells USB devices for automatic system 
+ builders.
+ .
+ This package give command line interface.

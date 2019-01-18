@@ -1,0 +1,38 @@
+# Compulsory line, this is a version 4 file
+version=4
+
+
+# PGP signature mangle, so foo.tar.gz has foo.tar.gz.sig
+#opts="pgpsigurlmangle=s%$%.sig%"
+
+# HTTP site (basic)
+opts="pgpmode=none,compression=xz,uversionmangle=s/^/1.10./" \
+   https://www.yoctopuce.com/EN/libraries.php \
+   /FR/downloads/YoctoLib\.cmdline\.([\d]+)\.zip 
+#opts="pgpmode=none,compression=xz,dversionmangle=s/1.10.//" \
+#   https://www.yoctopuce.com/EN/libraries.php \
+#   /FR/downloads/YoctoLib\.cmdline\.([\d]+)\.zip 
+
+# Uncommment to examine a FTP server
+#ftp://ftp.example.com/pub/yoctolib-cmdline-(.*)\.tar\.gz debian uupdate
+
+# SourceForge hosted projects
+# http://sf.net/yoctolib-cmdline/ yoctolib-cmdline-(.*)\.tar\.gz debian uupdate
+
+# GitHub hosted projects
+#opts="filenamemangle=s%(?:.*?)?v?(\d[\d.]*)\.tar\.gz%<project>-$1.tar.gz%" \
+#   https://github.com/<user>/yoctolib-cmdline/tags \
+#   (?:.*?/)?v?(\d[\d.]*)\.tar\.gz debian uupdate
+
+# PyPI
+# https://pypi.debian.net/yoctolib-cmdline/yoctolib-cmdline-(.+)\.(?:zip|tgz|tbz|txz|(?:tar\.(?:gz|bz2|xz)))
+
+# Direct Git
+# opts="mode=git" http://git.example.com/yoctolib-cmdline.git \
+#   refs/tags/v([\d\.]+) debian uupdate
+
+
+
+
+# Uncomment to find new files on GooglePages
+# http://example.googlepages.com/foo.html yoctolib-cmdline-(.*)\.tar\.gz

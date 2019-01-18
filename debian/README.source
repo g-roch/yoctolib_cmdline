@@ -1,0 +1,10 @@
+yoctolib-cmdline for Debian
+--------------------------
+
+Upstream source is downloaded from http://www.yoctopuce.com/EN/libraries.php and
+directories Binaries/{linux,osx,windows}/ is removed.
+
+
+
+ -- Gabriel Roch <gabriel@g-roch.ch>  Fri, 18 Jan 2019 09:06:21 +0100
+
