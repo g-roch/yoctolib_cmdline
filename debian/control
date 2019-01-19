@@ -3,8 +3,9 @@ Section: non-free/misc
 Priority: optional
 Maintainer: Gabriel Roch <gabriel@g-roch.ch>
 Build-Depends:
-   debhelper (>= 10),
-   libyocto-dev
+ debhelper (>= 10),
+ libyocto-dev,
+ help2man
 Standards-Version: 3.9.8
 Homepage: https://www.yoctopuce.com/
 #Vcs-Git: https://anonscm.debian.org/collab-maint/yoctolib-cmdline.git
