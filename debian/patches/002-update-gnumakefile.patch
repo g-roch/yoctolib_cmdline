@@ -47,7 +47,7 @@ Update GNUmakefile for use yoctolib from libyocto-dev package and generate manpa
  
  
  fwd: default
-@@ -557,4 +557,17 @@
+@@ -557,4 +557,15 @@
  clean_osx: clean_obj_osx
  	@rm -rf $(DIR_OSX)
  
@@ -60,8 +60,6 @@ Update GNUmakefile for use yoctolib from libyocto-dev package and generate manpa
 +man1/%.1:
 +	@mkdir -p man1
 +	help2man --name="Access to a YoctoPuce module ($*)" $(wildcard linux/*/$*) > $@
-+man1/YDaisyChain.1:
-+	@echo 'ignored $@'
 +clean_man:
 +	rm -fr man1
 +

@@ -1,3 +1,9 @@
+yoctolib-cmdline (1.10.34056-1) unstable; urgency=medium
+
+  * Upstream update (YDaisyChain fix)
+
+ -- Gabriel Roch <gabriel@g-roch.ch>  Tue, 22 Jan 2019 10:56:32 +0100
+
 yoctolib-cmdline (1.10.33831-2) unstable; urgency=medium
 
   * update build-depends
