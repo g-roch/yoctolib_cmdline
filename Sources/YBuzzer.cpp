@@ -1,6 +1,6 @@
 /*********************************************************************
  *
- *  $Id: YBuzzer.cpp 33710 2018-12-14 14:18:53Z seb $
+ *  $Id: YBuzzer.cpp 33903 2018-12-28 08:49:26Z seb $
  *
  *  Implements commands to handle Buzzer functions
  *
@@ -553,6 +553,46 @@ public:
     for (i = 0; i < list->size(); i++)
       {
         (*list)[i]->unmuteValueCallbacks();
+        PrintResult(resultformat, this->getName(),YFunctionInfoCache((*list)[i]), value, true);
+      }
+  }
+};
+
+/**
+ * Returns the serial number of the module, as set by the factory.
+ *
+ * @return a string corresponding to the serial number of the module, as set by the factory.
+ *
+ * On failure, throws an exception or returns YModule.SERIALNUMBER_INVALID.
+ */
+class apifun_Buzzer_get_serialNumber : public YapiCommand /* arguments: */
+{
+public:
+  apifun_Buzzer_get_serialNumber(YFunctionCmdLine *function):YapiCommand(function){}
+
+  string getName()
+  {
+    return "get_serialNumber";
+  }
+
+  string getDescription()
+  {
+    return "Returns the serial number of the module, as set by the factory.";
+  }
+
+  vector<ArgumentDesc*>* getArgumentDesc()
+  {
+    vector<ArgumentDesc*>* res = new vector<ArgumentDesc*>();
+    return res;
+  }
+
+  virtual void execute(string target, vector<YModule*> *modulelist, string resultformat, vector<ArgumentDesc*>* args, vector<SwitchDesc*>* switches)
+  {
+    vector<YBuzzer*>* list = enumerateTargets<YBuzzer>(_function, target, modulelist);
+    unsigned int i;
+    for (i = 0; i < list->size(); i++)
+      {
+        string value = (*list)[i]->get_serialNumber();
         PrintResult(resultformat, this->getName(),YFunctionInfoCache((*list)[i]), value, true);
       }
   }
@@ -1148,6 +1188,7 @@ void YBuzzerCmdLine::RegisterCommands(vector<YapiCommand*>* cmdList)
     cmdList->push_back((YapiCommand*) (new Buzzer_get_playSeqSignature(this)));
     cmdList->push_back((YapiCommand*) (new apifun_Buzzer_muteValueCallbacks(this)));
     cmdList->push_back((YapiCommand*) (new apifun_Buzzer_unmuteValueCallbacks(this)));
+    cmdList->push_back((YapiCommand*) (new apifun_Buzzer_get_serialNumber(this)));
     cmdList->push_back((YapiCommand*) (new apifun_Buzzer_addFreqMoveToPlaySeq(this)));
     cmdList->push_back((YapiCommand*) (new apifun_Buzzer_addPulseToPlaySeq(this)));
     cmdList->push_back((YapiCommand*) (new apifun_Buzzer_addVolMoveToPlaySeq(this)));

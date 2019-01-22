@@ -1,6 +1,6 @@
 /*********************************************************************
  *
- *  $Id: YColorLed.cpp 33710 2018-12-14 14:18:53Z seb $
+ *  $Id: YColorLed.cpp 33903 2018-12-28 08:49:26Z seb $
  *
  *  Implements commands to handle ColorLed functions
  *
@@ -741,6 +741,46 @@ public:
 };
 
 /**
+ * Returns the serial number of the module, as set by the factory.
+ *
+ * @return a string corresponding to the serial number of the module, as set by the factory.
+ *
+ * On failure, throws an exception or returns YModule.SERIALNUMBER_INVALID.
+ */
+class apifun_ColorLed_get_serialNumber : public YapiCommand /* arguments: */
+{
+public:
+  apifun_ColorLed_get_serialNumber(YFunctionCmdLine *function):YapiCommand(function){}
+
+  string getName()
+  {
+    return "get_serialNumber";
+  }
+
+  string getDescription()
+  {
+    return "Returns the serial number of the module, as set by the factory.";
+  }
+
+  vector<ArgumentDesc*>* getArgumentDesc()
+  {
+    vector<ArgumentDesc*>* res = new vector<ArgumentDesc*>();
+    return res;
+  }
+
+  virtual void execute(string target, vector<YModule*> *modulelist, string resultformat, vector<ArgumentDesc*>* args, vector<SwitchDesc*>* switches)
+  {
+    vector<YColorLed*>* list = enumerateTargets<YColorLed>(_function, target, modulelist);
+    unsigned int i;
+    for (i = 0; i < list->size(); i++)
+      {
+        string value = (*list)[i]->get_serialNumber();
+        PrintResult(resultformat, this->getName(),YFunctionInfoCache((*list)[i]), value, true);
+      }
+  }
+};
+
+/**
  * Add a new transition to the blinking sequence, the move will
  * be performed in the HSL space.
  *
@@ -987,6 +1027,7 @@ void YColorLedCmdLine::RegisterCommands(vector<YapiCommand*>* cmdList)
     cmdList->push_back((YapiCommand*) (new ColorLed_get_blinkSeqSignature(this)));
     cmdList->push_back((YapiCommand*) (new apifun_ColorLed_muteValueCallbacks(this)));
     cmdList->push_back((YapiCommand*) (new apifun_ColorLed_unmuteValueCallbacks(this)));
+    cmdList->push_back((YapiCommand*) (new apifun_ColorLed_get_serialNumber(this)));
     cmdList->push_back((YapiCommand*) (new apifun_ColorLed_addHslMoveToBlinkSeq(this)));
     cmdList->push_back((YapiCommand*) (new apifun_ColorLed_addRgbMoveToBlinkSeq(this)));
     cmdList->push_back((YapiCommand*) (new apifun_ColorLed_startBlinkSeq(this)));

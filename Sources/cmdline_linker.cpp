@@ -1,6 +1,6 @@
 /*********************************************************************
 *
-* $Id: cmdline_linker.cpp 33291 2018-11-22 11:05:54Z seb $
+* $Id: cmdline_linker.cpp 34056 2019-01-21 10:08:43Z seb $
 *
 * implementation of cmdline  API generic class & functions
 *
@@ -82,6 +82,10 @@
 
 #if defined(CMD_YSH) || defined(CMD_YCurrentLoopOutput)
 #include "YCurrentLoopOutput.h"
+#endif
+
+#if defined(CMD_YSH) || defined(CMD_YDaisyChain)
+#include "YDaisyChain.h"
 #endif
 
 #if defined(CMD_YSH) || defined(CMD_YDataLogger)
@@ -342,6 +346,10 @@ void linkYFunctionsCmdLine(vector<YFunctionCmdLine*> *allCmdlines)
 
 #if defined(CMD_YSH) || defined(CMD_YCurrentLoopOutput)
     allCmdlines->push_back(new YCurrentLoopOutputCmdLine());
+#endif
+
+#if defined(CMD_YSH) || defined(CMD_YDaisyChain)
+    allCmdlines->push_back(new YDaisyChainCmdLine());
 #endif
 
 #if defined(CMD_YSH) || defined(CMD_YDataLogger)

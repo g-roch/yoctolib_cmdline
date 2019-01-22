@@ -1,6 +1,6 @@
 /*********************************************************************
  *
- *  $Id: YVoltageOutput.cpp 33710 2018-12-14 14:18:53Z seb $
+ *  $Id: YVoltageOutput.cpp 33903 2018-12-28 08:49:26Z seb $
  *
  *  Implements commands to handle VoltageOutput functions
  *
@@ -449,6 +449,46 @@ public:
 };
 
 /**
+ * Returns the serial number of the module, as set by the factory.
+ *
+ * @return a string corresponding to the serial number of the module, as set by the factory.
+ *
+ * On failure, throws an exception or returns YModule.SERIALNUMBER_INVALID.
+ */
+class apifun_VoltageOutput_get_serialNumber : public YapiCommand /* arguments: */
+{
+public:
+  apifun_VoltageOutput_get_serialNumber(YFunctionCmdLine *function):YapiCommand(function){}
+
+  string getName()
+  {
+    return "get_serialNumber";
+  }
+
+  string getDescription()
+  {
+    return "Returns the serial number of the module, as set by the factory.";
+  }
+
+  vector<ArgumentDesc*>* getArgumentDesc()
+  {
+    vector<ArgumentDesc*>* res = new vector<ArgumentDesc*>();
+    return res;
+  }
+
+  virtual void execute(string target, vector<YModule*> *modulelist, string resultformat, vector<ArgumentDesc*>* args, vector<SwitchDesc*>* switches)
+  {
+    vector<YVoltageOutput*>* list = enumerateTargets<YVoltageOutput>(_function, target, modulelist);
+    unsigned int i;
+    for (i = 0; i < list->size(); i++)
+      {
+        string value = (*list)[i]->get_serialNumber();
+        PrintResult(resultformat, this->getName(),YFunctionInfoCache((*list)[i]), value, true);
+      }
+  }
+};
+
+/**
  * Performs a smooth transition of output voltage. Any explicit voltage
  * change cancels any ongoing transition process.
  *
@@ -517,6 +557,7 @@ void YVoltageOutputCmdLine::RegisterCommands(vector<YapiCommand*>* cmdList)
     cmdList->push_back((YapiCommand*) (new VoltageOutput_get_voltageAtStartUp(this)));
     cmdList->push_back((YapiCommand*) (new apifun_VoltageOutput_muteValueCallbacks(this)));
     cmdList->push_back((YapiCommand*) (new apifun_VoltageOutput_unmuteValueCallbacks(this)));
+    cmdList->push_back((YapiCommand*) (new apifun_VoltageOutput_get_serialNumber(this)));
     cmdList->push_back((YapiCommand*) (new apifun_VoltageOutput_voltageMove(this)));
   }
 

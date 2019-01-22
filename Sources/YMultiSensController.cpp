@@ -1,6 +1,6 @@
 /*********************************************************************
  *
- *  $Id: YMultiSensController.cpp 33710 2018-12-14 14:18:53Z seb $
+ *  $Id: YMultiSensController.cpp 33903 2018-12-28 08:49:26Z seb $
  *
  *  Implements commands to handle MultiSensController functions
  *
@@ -498,6 +498,46 @@ public:
 };
 
 /**
+ * Returns the serial number of the module, as set by the factory.
+ *
+ * @return a string corresponding to the serial number of the module, as set by the factory.
+ *
+ * On failure, throws an exception or returns YModule.SERIALNUMBER_INVALID.
+ */
+class apifun_MultiSensController_get_serialNumber : public YapiCommand /* arguments: */
+{
+public:
+  apifun_MultiSensController_get_serialNumber(YFunctionCmdLine *function):YapiCommand(function){}
+
+  string getName()
+  {
+    return "get_serialNumber";
+  }
+
+  string getDescription()
+  {
+    return "Returns the serial number of the module, as set by the factory.";
+  }
+
+  vector<ArgumentDesc*>* getArgumentDesc()
+  {
+    vector<ArgumentDesc*>* res = new vector<ArgumentDesc*>();
+    return res;
+  }
+
+  virtual void execute(string target, vector<YModule*> *modulelist, string resultformat, vector<ArgumentDesc*>* args, vector<SwitchDesc*>* switches)
+  {
+    vector<YMultiSensController*>* list = enumerateTargets<YMultiSensController>(_function, target, modulelist);
+    unsigned int i;
+    for (i = 0; i < list->size(); i++)
+      {
+        string value = (*list)[i]->get_serialNumber();
+        PrintResult(resultformat, this->getName(),YFunctionInfoCache((*list)[i]), value, true);
+      }
+  }
+};
+
+/**
  * Configure the I2C address of the only sensor connected to the device.
  * It is recommended to put the the device in maintenance mode before
  * changing Sensors addresses.  This method is only intended to work with a single
@@ -568,6 +608,7 @@ void YMultiSensControllerCmdLine::RegisterCommands(vector<YapiCommand*>* cmdList
     cmdList->push_back((YapiCommand*) (new MultiSensController_set_maintenanceMode(this)));
     cmdList->push_back((YapiCommand*) (new apifun_MultiSensController_muteValueCallbacks(this)));
     cmdList->push_back((YapiCommand*) (new apifun_MultiSensController_unmuteValueCallbacks(this)));
+    cmdList->push_back((YapiCommand*) (new apifun_MultiSensController_get_serialNumber(this)));
     cmdList->push_back((YapiCommand*) (new apifun_MultiSensController_setupAddress(this)));
   }
 

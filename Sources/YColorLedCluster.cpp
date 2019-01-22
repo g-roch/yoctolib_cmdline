@@ -1,6 +1,6 @@
 /*********************************************************************
  *
- *  $Id: YColorLedCluster.cpp 33710 2018-12-14 14:18:53Z seb $
+ *  $Id: YColorLedCluster.cpp 33903 2018-12-28 08:49:26Z seb $
  *
  *  Implements commands to handle ColorLedCluster functions
  *
@@ -547,6 +547,46 @@ public:
     for (i = 0; i < list->size(); i++)
       {
         (*list)[i]->unmuteValueCallbacks();
+        PrintResult(resultformat, this->getName(),YFunctionInfoCache((*list)[i]), value, true);
+      }
+  }
+};
+
+/**
+ * Returns the serial number of the module, as set by the factory.
+ *
+ * @return a string corresponding to the serial number of the module, as set by the factory.
+ *
+ * On failure, throws an exception or returns YModule.SERIALNUMBER_INVALID.
+ */
+class apifun_ColorLedCluster_get_serialNumber : public YapiCommand /* arguments: */
+{
+public:
+  apifun_ColorLedCluster_get_serialNumber(YFunctionCmdLine *function):YapiCommand(function){}
+
+  string getName()
+  {
+    return "get_serialNumber";
+  }
+
+  string getDescription()
+  {
+    return "Returns the serial number of the module, as set by the factory.";
+  }
+
+  vector<ArgumentDesc*>* getArgumentDesc()
+  {
+    vector<ArgumentDesc*>* res = new vector<ArgumentDesc*>();
+    return res;
+  }
+
+  virtual void execute(string target, vector<YModule*> *modulelist, string resultformat, vector<ArgumentDesc*>* args, vector<SwitchDesc*>* switches)
+  {
+    vector<YColorLedCluster*>* list = enumerateTargets<YColorLedCluster>(_function, target, modulelist);
+    unsigned int i;
+    for (i = 0; i < list->size(); i++)
+      {
+        string value = (*list)[i]->get_serialNumber();
         PrintResult(resultformat, this->getName(),YFunctionInfoCache((*list)[i]), value, true);
       }
   }
@@ -2691,6 +2731,7 @@ void YColorLedClusterCmdLine::RegisterCommands(vector<YapiCommand*>* cmdList)
     cmdList->push_back((YapiCommand*) (new ColorLedCluster_get_blinkSeqMaxSize(this)));
     cmdList->push_back((YapiCommand*) (new apifun_ColorLedCluster_muteValueCallbacks(this)));
     cmdList->push_back((YapiCommand*) (new apifun_ColorLedCluster_unmuteValueCallbacks(this)));
+    cmdList->push_back((YapiCommand*) (new apifun_ColorLedCluster_get_serialNumber(this)));
     cmdList->push_back((YapiCommand*) (new apifun_ColorLedCluster_set_rgbColor(this)));
     cmdList->push_back((YapiCommand*) (new apifun_ColorLedCluster_set_rgbColorAtPowerOn(this)));
     cmdList->push_back((YapiCommand*) (new apifun_ColorLedCluster_set_hslColorAtPowerOn(this)));

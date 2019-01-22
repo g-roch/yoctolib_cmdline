@@ -1,6 +1,6 @@
 /*********************************************************************
  *
- *  $Id: YMultiAxisController.cpp 32610 2018-10-10 06:52:20Z seb $
+ *  $Id: YMultiAxisController.cpp 33903 2018-12-28 08:49:26Z seb $
  *
  *  Implements commands to handle MultiAxisController functions
  *
@@ -408,6 +408,46 @@ public:
 };
 
 /**
+ * Returns the serial number of the module, as set by the factory.
+ *
+ * @return a string corresponding to the serial number of the module, as set by the factory.
+ *
+ * On failure, throws an exception or returns YModule.SERIALNUMBER_INVALID.
+ */
+class apifun_MultiAxisController_get_serialNumber : public YapiCommand /* arguments: */
+{
+public:
+  apifun_MultiAxisController_get_serialNumber(YFunctionCmdLine *function):YapiCommand(function){}
+
+  string getName()
+  {
+    return "get_serialNumber";
+  }
+
+  string getDescription()
+  {
+    return "Returns the serial number of the module, as set by the factory.";
+  }
+
+  vector<ArgumentDesc*>* getArgumentDesc()
+  {
+    vector<ArgumentDesc*>* res = new vector<ArgumentDesc*>();
+    return res;
+  }
+
+  virtual void execute(string target, vector<YModule*> *modulelist, string resultformat, vector<ArgumentDesc*>* args, vector<SwitchDesc*>* switches)
+  {
+    vector<YMultiAxisController*>* list = enumerateTargets<YMultiAxisController>(_function, target, modulelist);
+    unsigned int i;
+    for (i = 0; i < list->size(); i++)
+      {
+        string value = (*list)[i]->get_serialNumber();
+        PrintResult(resultformat, this->getName(),YFunctionInfoCache((*list)[i]), value, true);
+      }
+  }
+};
+
+/**
  * Reinitialize all controllers and clear all alert flags.
  *
  * @return YAPI_SUCCESS if the call succeeds.
@@ -773,6 +813,7 @@ void YMultiAxisControllerCmdLine::RegisterCommands(vector<YapiCommand*>* cmdList
     cmdList->push_back((YapiCommand*) (new MultiAxisController_get_globalState(this)));
     cmdList->push_back((YapiCommand*) (new apifun_MultiAxisController_muteValueCallbacks(this)));
     cmdList->push_back((YapiCommand*) (new apifun_MultiAxisController_unmuteValueCallbacks(this)));
+    cmdList->push_back((YapiCommand*) (new apifun_MultiAxisController_get_serialNumber(this)));
     cmdList->push_back((YapiCommand*) (new apifun_MultiAxisController_reset(this)));
     cmdList->push_back((YapiCommand*) (new apifun_MultiAxisController_findHomePosition(this)));
     cmdList->push_back((YapiCommand*) (new apifun_MultiAxisController_moveTo(this)));

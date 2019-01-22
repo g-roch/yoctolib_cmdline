@@ -1,6 +1,6 @@
 /*********************************************************************
  *
- * $Id: YDisplay.cpp 33710 2018-12-14 14:18:53Z seb $
+ * $Id: YDisplay.cpp 33903 2018-12-28 08:49:26Z seb $
  *
  * Implements commands to handle Display functions
  *
@@ -831,7 +831,8 @@ public:
  * file, check the device logs for any error message such as missing font file or bad font
  * file format.
  *
- * @param fontname : the font file name
+ * @param fontname : the font file name, embedded fonts are 8x8.yfm, Small.yfm, Medium.yfm, Large.yfm
+ * (not available on Yocto-MiniDisplay).
  *
  * @return YAPI_SUCCESS if the call succeeds.
  *
@@ -860,7 +861,7 @@ public:
   vector<ArgumentDesc*>* getArgumentDesc()
   {
     vector<ArgumentDesc*>* res = new vector<ArgumentDesc*>();
-    res->push_back(new ArgumentDesc(STRING_ARG, "fontname", "the font file name", "_STRING", false));
+    res->push_back(new ArgumentDesc(STRING_ARG, "fontname", "the font file name, embedded fonts are 8x8.yfm, Small.yfm, Medium.yfm, Large.yfm (not available on Yocto-MiniDisplay).", "_STRING", false));
     return res;
   }
 
@@ -2657,6 +2658,46 @@ public:
 };
 
 /**
+ * Returns the serial number of the module, as set by the factory.
+ *
+ * @return a string corresponding to the serial number of the module, as set by the factory.
+ *
+ * On failure, throws an exception or returns YModule.SERIALNUMBER_INVALID.
+ */
+class apifun_Display_get_serialNumber : public YapiCommand /* arguments: */
+{
+public:
+  apifun_Display_get_serialNumber(YFunctionCmdLine *function):YapiCommand(function){}
+
+  string getName()
+  {
+    return "get_serialNumber";
+  }
+
+  string getDescription()
+  {
+    return "Returns the serial number of the module, as set by the factory.";
+  }
+
+  vector<ArgumentDesc*>* getArgumentDesc()
+  {
+    vector<ArgumentDesc*>* res = new vector<ArgumentDesc*>();
+    return res;
+  }
+
+  virtual void execute(string target, vector<YModule*> *modulelist, string resultformat, vector<ArgumentDesc*>* args, vector<SwitchDesc*>* switches)
+  {
+    vector<YDisplay*>* list = enumerateTargets<YDisplay>(_function, target, modulelist);
+    unsigned int i;
+    for (i = 0; i < list->size(); i++)
+      {
+        string value = (*list)[i]->get_serialNumber();
+        PrintResult(resultformat, this->getName(),YFunctionInfoCache((*list)[i]), value, true);
+      }
+  }
+};
+
+/**
  * Clears the display screen and resets all display layers to their default state.
  * Using this function in a sequence will kill the sequence play-back. Don't use that
  * function to reset the display at sequence start-up.
@@ -3236,6 +3277,7 @@ void YDisplayCmdLine::RegisterCommands(vector<YapiCommand*>* cmdList)
     cmdList->push_back((YapiCommand*) (new Display_get_layerCount(this)));
     cmdList->push_back((YapiCommand*) (new apifun_Display_muteValueCallbacks(this)));
     cmdList->push_back((YapiCommand*) (new apifun_Display_unmuteValueCallbacks(this)));
+    cmdList->push_back((YapiCommand*) (new apifun_Display_get_serialNumber(this)));
     cmdList->push_back((YapiCommand*) (new apifun_Display_resetAll(this)));
     cmdList->push_back((YapiCommand*) (new apifun_Display_fade(this)));
     cmdList->push_back((YapiCommand*) (new apifun_Display_newSequence(this)));

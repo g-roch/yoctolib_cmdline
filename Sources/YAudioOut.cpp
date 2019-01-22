@@ -1,6 +1,6 @@
 /*********************************************************************
  *
- *  $Id: YAudioOut.cpp 32610 2018-10-10 06:52:20Z seb $
+ *  $Id: YAudioOut.cpp 33903 2018-12-28 08:49:26Z seb $
  *
  *  Implements commands to handle AudioOut functions
  *
@@ -564,6 +564,46 @@ public:
   }
 };
 
+/**
+ * Returns the serial number of the module, as set by the factory.
+ *
+ * @return a string corresponding to the serial number of the module, as set by the factory.
+ *
+ * On failure, throws an exception or returns YModule.SERIALNUMBER_INVALID.
+ */
+class apifun_AudioOut_get_serialNumber : public YapiCommand /* arguments: */
+{
+public:
+  apifun_AudioOut_get_serialNumber(YFunctionCmdLine *function):YapiCommand(function){}
+
+  string getName()
+  {
+    return "get_serialNumber";
+  }
+
+  string getDescription()
+  {
+    return "Returns the serial number of the module, as set by the factory.";
+  }
+
+  vector<ArgumentDesc*>* getArgumentDesc()
+  {
+    vector<ArgumentDesc*>* res = new vector<ArgumentDesc*>();
+    return res;
+  }
+
+  virtual void execute(string target, vector<YModule*> *modulelist, string resultformat, vector<ArgumentDesc*>* args, vector<SwitchDesc*>* switches)
+  {
+    vector<YAudioOut*>* list = enumerateTargets<YAudioOut>(_function, target, modulelist);
+    unsigned int i;
+    for (i = 0; i < list->size(); i++)
+      {
+        string value = (*list)[i]->get_serialNumber();
+        PrintResult(resultformat, this->getName(),YFunctionInfoCache((*list)[i]), value, true);
+      }
+  }
+};
+
 //--- (end of YAudioOut implementation)
 
 //--- (YAudioOut functions)
@@ -582,6 +622,7 @@ void YAudioOutCmdLine::RegisterCommands(vector<YapiCommand*>* cmdList)
     cmdList->push_back((YapiCommand*) (new AudioOut_get_noSignalFor(this)));
     cmdList->push_back((YapiCommand*) (new apifun_AudioOut_muteValueCallbacks(this)));
     cmdList->push_back((YapiCommand*) (new apifun_AudioOut_unmuteValueCallbacks(this)));
+    cmdList->push_back((YapiCommand*) (new apifun_AudioOut_get_serialNumber(this)));
   }
 
 //--- (end of YAudioOut functions)

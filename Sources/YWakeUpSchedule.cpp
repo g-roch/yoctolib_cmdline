@@ -1,6 +1,6 @@
 /*********************************************************************
  *
- *  $Id: YWakeUpSchedule.cpp 33710 2018-12-14 14:18:53Z seb $
+ *  $Id: YWakeUpSchedule.cpp 33903 2018-12-28 08:49:26Z seb $
  *
  *  Implements commands to handle WakeUpSchedule functions
  *
@@ -785,6 +785,46 @@ public:
 };
 
 /**
+ * Returns the serial number of the module, as set by the factory.
+ *
+ * @return a string corresponding to the serial number of the module, as set by the factory.
+ *
+ * On failure, throws an exception or returns YModule.SERIALNUMBER_INVALID.
+ */
+class apifun_WakeUpSchedule_get_serialNumber : public YapiCommand /* arguments: */
+{
+public:
+  apifun_WakeUpSchedule_get_serialNumber(YFunctionCmdLine *function):YapiCommand(function){}
+
+  string getName()
+  {
+    return "get_serialNumber";
+  }
+
+  string getDescription()
+  {
+    return "Returns the serial number of the module, as set by the factory.";
+  }
+
+  vector<ArgumentDesc*>* getArgumentDesc()
+  {
+    vector<ArgumentDesc*>* res = new vector<ArgumentDesc*>();
+    return res;
+  }
+
+  virtual void execute(string target, vector<YModule*> *modulelist, string resultformat, vector<ArgumentDesc*>* args, vector<SwitchDesc*>* switches)
+  {
+    vector<YWakeUpSchedule*>* list = enumerateTargets<YWakeUpSchedule>(_function, target, modulelist);
+    unsigned int i;
+    for (i = 0; i < list->size(); i++)
+      {
+        string value = (*list)[i]->get_serialNumber();
+        PrintResult(resultformat, this->getName(),YFunctionInfoCache((*list)[i]), value, true);
+      }
+  }
+};
+
+/**
  * Returns all the minutes of each hour that are scheduled for wake up.
  */
 class apifun_WakeUpSchedule_get_minutes : public YapiCommand /* arguments: */
@@ -889,6 +929,7 @@ void YWakeUpScheduleCmdLine::RegisterCommands(vector<YapiCommand*>* cmdList)
     cmdList->push_back((YapiCommand*) (new WakeUpSchedule_get_nextOccurence(this)));
     cmdList->push_back((YapiCommand*) (new apifun_WakeUpSchedule_muteValueCallbacks(this)));
     cmdList->push_back((YapiCommand*) (new apifun_WakeUpSchedule_unmuteValueCallbacks(this)));
+    cmdList->push_back((YapiCommand*) (new apifun_WakeUpSchedule_get_serialNumber(this)));
     cmdList->push_back((YapiCommand*) (new apifun_WakeUpSchedule_get_minutes(this)));
     cmdList->push_back((YapiCommand*) (new apifun_WakeUpSchedule_set_minutes(this)));
   }
