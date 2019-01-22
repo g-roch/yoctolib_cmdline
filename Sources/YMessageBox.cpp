@@ -1,6 +1,6 @@
 /*********************************************************************
  *
- * $Id: YMessageBox.cpp 28749 2017-10-03 08:31:33Z seb $
+ * $Id: YMessageBox.cpp 33903 2018-12-28 08:49:26Z seb $
  *
  * Implements commands to handle MessageBox functions
  *
@@ -518,6 +518,46 @@ public:
 };
 
 /**
+ * Returns the serial number of the module, as set by the factory.
+ *
+ * @return a string corresponding to the serial number of the module, as set by the factory.
+ *
+ * On failure, throws an exception or returns YModule.SERIALNUMBER_INVALID.
+ */
+class apifun_MessageBox_get_serialNumber : public YapiCommand /* arguments: */
+{
+public:
+  apifun_MessageBox_get_serialNumber(YFunctionCmdLine *function):YapiCommand(function){}
+
+  string getName()
+  {
+    return "get_serialNumber";
+  }
+
+  string getDescription()
+  {
+    return "Returns the serial number of the module, as set by the factory.";
+  }
+
+  vector<ArgumentDesc*>* getArgumentDesc()
+  {
+    vector<ArgumentDesc*>* res = new vector<ArgumentDesc*>();
+    return res;
+  }
+
+  virtual void execute(string target, vector<YModule*> *modulelist, string resultformat, vector<ArgumentDesc*>* args, vector<SwitchDesc*>* switches)
+  {
+    vector<YMessageBox*>* list = enumerateTargets<YMessageBox>(_function, target, modulelist);
+    unsigned int i;
+    for (i = 0; i < list->size(); i++)
+      {
+        string value = (*list)[i]->get_serialNumber();
+        PrintResult(resultformat, this->getName(),YFunctionInfoCache((*list)[i]), value, true);
+      }
+  }
+};
+
+/**
  * Clear the SMS units counters.
  *
  * @return YAPI_SUCCESS when the call succeeds.
@@ -784,6 +824,7 @@ void YMessageBoxCmdLine::RegisterCommands(vector<YapiCommand*>* cmdList)
     cmdList->push_back((YapiCommand*) (new MessageBox_set_pduReceived(this)));
     cmdList->push_back((YapiCommand*) (new apifun_MessageBox_muteValueCallbacks(this)));
     cmdList->push_back((YapiCommand*) (new apifun_MessageBox_unmuteValueCallbacks(this)));
+    cmdList->push_back((YapiCommand*) (new apifun_MessageBox_get_serialNumber(this)));
     cmdList->push_back((YapiCommand*) (new apifun_MessageBox_clearPduCounters(this)));
     cmdList->push_back((YapiCommand*) (new apifun_MessageBox_sendTextMessage(this)));
     cmdList->push_back((YapiCommand*) (new apifun_MessageBox_sendFlashMessage(this)));

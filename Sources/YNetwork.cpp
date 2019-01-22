@@ -1,6 +1,6 @@
 /*********************************************************************
  *
- *  $Id: YNetwork.cpp 33710 2018-12-14 14:18:53Z seb $
+ *  $Id: YNetwork.cpp 34022 2019-01-15 18:21:34Z seb $
  *
  *  Implements commands to handle Network functions
  *
@@ -707,7 +707,8 @@ public:
 };
 
 /**
- * Changes the IP address of the NTP server to be used by the module.
+ * Changes the IP address of the NTP server to be used by the module. Use an empty
+ * string to restore the factory set  address.
  * Remember to call the saveToFlash() method and then to reboot the module to apply this setting.
  *
  * @param newval : a string corresponding to the IP address of the NTP server to be used by the module
@@ -732,7 +733,7 @@ public:
 
   string getMoreInfo()
   {
-    return "Remember to call the saveToFlash() method and then to reboot the module to apply this setting.";
+    return "Use an empty string to restore the factory set address. Remember to call the saveToFlash() method and then to reboot the module to apply this setting.";
   }
 
   vector<ArgumentDesc*>* getArgumentDesc()
@@ -2127,6 +2128,46 @@ public:
 };
 
 /**
+ * Returns the serial number of the module, as set by the factory.
+ *
+ * @return a string corresponding to the serial number of the module, as set by the factory.
+ *
+ * On failure, throws an exception or returns YModule.SERIALNUMBER_INVALID.
+ */
+class apifun_Network_get_serialNumber : public YapiCommand /* arguments: */
+{
+public:
+  apifun_Network_get_serialNumber(YFunctionCmdLine *function):YapiCommand(function){}
+
+  string getName()
+  {
+    return "get_serialNumber";
+  }
+
+  string getDescription()
+  {
+    return "Returns the serial number of the module, as set by the factory.";
+  }
+
+  vector<ArgumentDesc*>* getArgumentDesc()
+  {
+    vector<ArgumentDesc*>* res = new vector<ArgumentDesc*>();
+    return res;
+  }
+
+  virtual void execute(string target, vector<YModule*> *modulelist, string resultformat, vector<ArgumentDesc*>* args, vector<SwitchDesc*>* switches)
+  {
+    vector<YNetwork*>* list = enumerateTargets<YNetwork>(_function, target, modulelist);
+    unsigned int i;
+    for (i = 0; i < list->size(); i++)
+      {
+        string value = (*list)[i]->get_serialNumber();
+        PrintResult(resultformat, this->getName(),YFunctionInfoCache((*list)[i]), value, true);
+      }
+  }
+};
+
+/**
  * Changes the configuration of the network interface to enable the use of an
  * IP address received from a DHCP server. Until an address is received from a DHCP
  * server, the module uses the IP parameters specified to this function.
@@ -2498,6 +2539,7 @@ void YNetworkCmdLine::RegisterCommands(vector<YapiCommand*>* cmdList)
     cmdList->push_back((YapiCommand*) (new Network_get_poeCurrent(this)));
     cmdList->push_back((YapiCommand*) (new apifun_Network_muteValueCallbacks(this)));
     cmdList->push_back((YapiCommand*) (new apifun_Network_unmuteValueCallbacks(this)));
+    cmdList->push_back((YapiCommand*) (new apifun_Network_get_serialNumber(this)));
     cmdList->push_back((YapiCommand*) (new apifun_Network_useDHCP(this)));
     cmdList->push_back((YapiCommand*) (new apifun_Network_useDHCPauto(this)));
     cmdList->push_back((YapiCommand*) (new apifun_Network_useStaticIP(this)));

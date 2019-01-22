@@ -1,6 +1,6 @@
 /*********************************************************************
  *
- *  $Id: YGenericSensor.cpp 33821 2018-12-21 13:57:06Z seb $
+ *  $Id: YGenericSensor.cpp 34022 2019-01-15 18:21:34Z seb $
  *
  *  Implements commands to handle GenericSensor functions
  *
@@ -591,7 +591,7 @@ public:
  * as sample per minute (for instance "15/m") or in samples per
  * hour (eg. "4/h"). To disable recording for this function, use
  * the value "OFF". Note that setting the  datalogger recording frequency
- * to a greater value than the sensor native sampling frequency is unless,
+ * to a greater value than the sensor native sampling frequency is useless,
  * and even counterproductive: those two frequencies are not related.
  *
  * @param newval : a string corresponding to the datalogger recording frequency for this function
@@ -616,7 +616,7 @@ public:
 
   string getMoreInfo()
   {
-    return "The frequency can be specified as samples per second, as sample per minute (for instance \"15/m\") or in samples per hour (eg. \"4/h\"). To disable recording for this function, use the value \"OFF\". Note that setting the datalogger recording frequency to a greater value than the sensor native sampling frequency is unless, and even counterproductive: those two frequencies are not related.";
+    return "The frequency can be specified as samples per second, as sample per minute (for instance \"15/m\") or in samples per hour (eg. \"4/h\"). To disable recording for this function, use the value \"OFF\". Note that setting the datalogger recording frequency to a greater value than the sensor native sampling frequency is useless, and even counterproductive: those two frequencies are not related.";
   }
 
   vector<ArgumentDesc*>* getArgumentDesc()
@@ -809,10 +809,17 @@ public:
 };
 
 /**
- * Changes the resolution of the measured physical values. The resolution corresponds to the numerical precision
- * when displaying value. It does not change the precision of the measure itself.
+ * Modifies the resolution of the measured physical values. The resolution corresponds to the numerical precision
+ * when displaying value. It does not change the precision of the measure itself. This feature is very handy
+ * when one need to publish values through callbacks with a specific resolution.
+ * Remember to call the saveToFlash() method of the module if the modification must be kept.
  *
- * @param newval : a floating point number corresponding to the resolution of the measured physical values
+ * @param resolution : the new resolution as a floating point value such as 1.0, 0.1, 0.01, 0.02 , 0.05 etc.
+ *
+ * @return YAPI_SUCCESS if the call succeeds.
+ *         On failure, throws an exception or returns a negative error code.
+ *
+ * @param newval : a floating point number
  *
  * @return YAPI_SUCCESS if the call succeeds.
  *
@@ -829,18 +836,18 @@ public:
 
   string getDescription()
   {
-    return "Changes the resolution of the measured physical values.";
+    return "Modifies the resolution of the measured physical values.";
   }
 
   string getMoreInfo()
   {
-    return "The resolution corresponds to the numerical precision when displaying value. It does not change the precision of the measure itself.";
+    return "The resolution corresponds to the numerical precision when displaying value. It does not change the precision of the measure itself. This feature is very handy when one need to publish values through callbacks with a specific resolution. Remember to call \"YModule {target} saveToFlash\" if the modification must be kept.";
   }
 
   vector<ArgumentDesc*>* getArgumentDesc()
   {
     vector<ArgumentDesc*>* res = new vector<ArgumentDesc*>();
-    res->push_back(new ArgumentDesc(DOUBLE_ARG, "newval", "a floating point number corresponding to the resolution of the measured physical values", "_DOUBLE", false));
+    res->push_back(new ArgumentDesc(DOUBLE_ARG, "newval", "a floating point number", "_DOUBLE", false));
     return res;
   }
 
@@ -1465,6 +1472,46 @@ public:
 };
 
 /**
+ * Returns the serial number of the module, as set by the factory.
+ *
+ * @return a string corresponding to the serial number of the module, as set by the factory.
+ *
+ * On failure, throws an exception or returns YModule.SERIALNUMBER_INVALID.
+ */
+class apifun_GenericSensor_get_serialNumber : public YapiCommand /* arguments: */
+{
+public:
+  apifun_GenericSensor_get_serialNumber(YFunctionCmdLine *function):YapiCommand(function){}
+
+  string getName()
+  {
+    return "get_serialNumber";
+  }
+
+  string getDescription()
+  {
+    return "Returns the serial number of the module, as set by the factory.";
+  }
+
+  vector<ArgumentDesc*>* getArgumentDesc()
+  {
+    vector<ArgumentDesc*>* res = new vector<ArgumentDesc*>();
+    return res;
+  }
+
+  virtual void execute(string target, vector<YModule*> *modulelist, string resultformat, vector<ArgumentDesc*>* args, vector<SwitchDesc*>* switches)
+  {
+    vector<YGenericSensor*>* list = enumerateTargets<YGenericSensor>(_function, target, modulelist);
+    unsigned int i;
+    for (i = 0; i < list->size(); i++)
+      {
+        string value = (*list)[i]->get_serialNumber();
+        PrintResult(resultformat, this->getName(),YFunctionInfoCache((*list)[i]), value, true);
+      }
+  }
+};
+
+/**
  * Checks if the sensor is currently able to provide an up-to-date measure.
  * Returns false if the device is unreachable, or if the sensor does not have
  * a current measure to transmit. No exception is raised if there is an error
@@ -1902,6 +1949,7 @@ void YGenericSensorCmdLine::RegisterCommands(vector<YapiCommand*>* cmdList)
     cmdList->push_back((YapiCommand*) (new GenericSensor_set_signalSampling(this)));
     cmdList->push_back((YapiCommand*) (new apifun_GenericSensor_muteValueCallbacks(this)));
     cmdList->push_back((YapiCommand*) (new apifun_GenericSensor_unmuteValueCallbacks(this)));
+    cmdList->push_back((YapiCommand*) (new apifun_GenericSensor_get_serialNumber(this)));
     cmdList->push_back((YapiCommand*) (new apifun_GenericSensor_isSensorReady(this)));
     cmdList->push_back((YapiCommand*) (new apifun_GenericSensor_startDataLogger(this)));
     cmdList->push_back((YapiCommand*) (new apifun_GenericSensor_stopDataLogger(this)));

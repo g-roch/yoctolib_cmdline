@@ -1,6 +1,6 @@
 /*********************************************************************
  *
- *  $Id: YProximity.cpp 33821 2018-12-21 13:57:06Z seb $
+ *  $Id: YProximity.cpp 33903 2018-12-28 08:49:26Z seb $
  *
  *  Implements commands to handle Proximity functions
  *
@@ -260,6 +260,13 @@ public:
 
 /**
  * Returns the current value of the proximity detection, in the specified unit, as a floating point number.
+ * Note that a get_currentValue() call will *not* start a measure in the device, it
+ * will just return the last measure that occurred in the device. Indeed, internally, each Yoctopuce
+ * devices is continuously making measurements at a hardware specific frequency.
+ *
+ * If continuously calling  get_currentValue() leads you to performances issues, then
+ * you might consider to switch to callback programming model. Check the "advanced
+ * programming" chapter in in your device user manual for more information.
  *
  * @return a floating point number corresponding to the current value of the proximity detection, in
  * the specified unit, as a floating point number
@@ -279,6 +286,11 @@ public:
   string getDescription()
   {
     return "Returns the current value of the proximity detection, in the specified unit, as a floating point number.";
+  }
+
+  string getMoreInfo()
+  {
+    return "Note that a get_currentValue() call will *not* start a measure in the device, it will just return the last measure that occurred in the device. Indeed, internally, each Yoctopuce devices is continuously making measurements at a hardware specific frequency.\nIf continuously calling get_currentValue() leads you to performances issues, then you might consider to switch to callback programming model. Check the \"advanced programming\" chapter in in your device user manual for more information.";
   }
 
   void execute(string target, vector<YModule*> *modulelist, string resultformat, vector<ArgumentDesc*>* args, vector<SwitchDesc*>* switches )
@@ -554,7 +566,7 @@ public:
  * as sample per minute (for instance "15/m") or in samples per
  * hour (eg. "4/h"). To disable recording for this function, use
  * the value "OFF". Note that setting the  datalogger recording frequency
- * to a greater value than the sensor native sampling frequency is unless,
+ * to a greater value than the sensor native sampling frequency is useless,
  * and even counterproductive: those two frequencies are not related.
  *
  * @param newval : a string corresponding to the datalogger recording frequency for this function
@@ -579,7 +591,7 @@ public:
 
   string getMoreInfo()
   {
-    return "The frequency can be specified as samples per second, as sample per minute (for instance \"15/m\") or in samples per hour (eg. \"4/h\"). To disable recording for this function, use the value \"OFF\". Note that setting the datalogger recording frequency to a greater value than the sensor native sampling frequency is unless, and even counterproductive: those two frequencies are not related.";
+    return "The frequency can be specified as samples per second, as sample per minute (for instance \"15/m\") or in samples per hour (eg. \"4/h\"). To disable recording for this function, use the value \"OFF\". Note that setting the datalogger recording frequency to a greater value than the sensor native sampling frequency is useless, and even counterproductive: those two frequencies are not related.";
   }
 
   vector<ArgumentDesc*>* getArgumentDesc()
@@ -1659,6 +1671,46 @@ public:
 };
 
 /**
+ * Returns the serial number of the module, as set by the factory.
+ *
+ * @return a string corresponding to the serial number of the module, as set by the factory.
+ *
+ * On failure, throws an exception or returns YModule.SERIALNUMBER_INVALID.
+ */
+class apifun_Proximity_get_serialNumber : public YapiCommand /* arguments: */
+{
+public:
+  apifun_Proximity_get_serialNumber(YFunctionCmdLine *function):YapiCommand(function){}
+
+  string getName()
+  {
+    return "get_serialNumber";
+  }
+
+  string getDescription()
+  {
+    return "Returns the serial number of the module, as set by the factory.";
+  }
+
+  vector<ArgumentDesc*>* getArgumentDesc()
+  {
+    vector<ArgumentDesc*>* res = new vector<ArgumentDesc*>();
+    return res;
+  }
+
+  virtual void execute(string target, vector<YModule*> *modulelist, string resultformat, vector<ArgumentDesc*>* args, vector<SwitchDesc*>* switches)
+  {
+    vector<YProximity*>* list = enumerateTargets<YProximity>(_function, target, modulelist);
+    unsigned int i;
+    for (i = 0; i < list->size(); i++)
+      {
+        string value = (*list)[i]->get_serialNumber();
+        PrintResult(resultformat, this->getName(),YFunctionInfoCache((*list)[i]), value, true);
+      }
+  }
+};
+
+/**
  * Checks if the sensor is currently able to provide an up-to-date measure.
  * Returns false if the device is unreachable, or if the sensor does not have
  * a current measure to transmit. No exception is raised if there is an error
@@ -2100,6 +2152,7 @@ void YProximityCmdLine::RegisterCommands(vector<YapiCommand*>* cmdList)
     cmdList->push_back((YapiCommand*) (new Proximity_set_proximityReportMode(this)));
     cmdList->push_back((YapiCommand*) (new apifun_Proximity_muteValueCallbacks(this)));
     cmdList->push_back((YapiCommand*) (new apifun_Proximity_unmuteValueCallbacks(this)));
+    cmdList->push_back((YapiCommand*) (new apifun_Proximity_get_serialNumber(this)));
     cmdList->push_back((YapiCommand*) (new apifun_Proximity_isSensorReady(this)));
     cmdList->push_back((YapiCommand*) (new apifun_Proximity_startDataLogger(this)));
     cmdList->push_back((YapiCommand*) (new apifun_Proximity_stopDataLogger(this)));

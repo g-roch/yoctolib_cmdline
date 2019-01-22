@@ -1,6 +1,6 @@
 /*********************************************************************
  *
- *  $Id: YStepperMotor.cpp 33710 2018-12-14 14:18:53Z seb $
+ *  $Id: YStepperMotor.cpp 33903 2018-12-28 08:49:26Z seb $
  *
  *  Implements commands to handle StepperMotor functions
  *
@@ -1149,6 +1149,46 @@ public:
 };
 
 /**
+ * Returns the serial number of the module, as set by the factory.
+ *
+ * @return a string corresponding to the serial number of the module, as set by the factory.
+ *
+ * On failure, throws an exception or returns YModule.SERIALNUMBER_INVALID.
+ */
+class apifun_StepperMotor_get_serialNumber : public YapiCommand /* arguments: */
+{
+public:
+  apifun_StepperMotor_get_serialNumber(YFunctionCmdLine *function):YapiCommand(function){}
+
+  string getName()
+  {
+    return "get_serialNumber";
+  }
+
+  string getDescription()
+  {
+    return "Returns the serial number of the module, as set by the factory.";
+  }
+
+  vector<ArgumentDesc*>* getArgumentDesc()
+  {
+    vector<ArgumentDesc*>* res = new vector<ArgumentDesc*>();
+    return res;
+  }
+
+  virtual void execute(string target, vector<YModule*> *modulelist, string resultformat, vector<ArgumentDesc*>* args, vector<SwitchDesc*>* switches)
+  {
+    vector<YStepperMotor*>* list = enumerateTargets<YStepperMotor>(_function, target, modulelist);
+    unsigned int i;
+    for (i = 0; i < list->size(); i++)
+      {
+        string value = (*list)[i]->get_serialNumber();
+        PrintResult(resultformat, this->getName(),YFunctionInfoCache((*list)[i]), value, true);
+      }
+  }
+};
+
+/**
  * Reinitialize the controller and clear all alert flags.
  *
  * @return YAPI_SUCCESS if the call succeeds.
@@ -1734,6 +1774,7 @@ void YStepperMotorCmdLine::RegisterCommands(vector<YapiCommand*>* cmdList)
     cmdList->push_back((YapiCommand*) (new StepperMotor_set_auxSignal(this)));
     cmdList->push_back((YapiCommand*) (new apifun_StepperMotor_muteValueCallbacks(this)));
     cmdList->push_back((YapiCommand*) (new apifun_StepperMotor_unmuteValueCallbacks(this)));
+    cmdList->push_back((YapiCommand*) (new apifun_StepperMotor_get_serialNumber(this)));
     cmdList->push_back((YapiCommand*) (new apifun_StepperMotor_reset(this)));
     cmdList->push_back((YapiCommand*) (new apifun_StepperMotor_findHomePosition(this)));
     cmdList->push_back((YapiCommand*) (new apifun_StepperMotor_changeSpeed(this)));

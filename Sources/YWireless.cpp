@@ -1,6 +1,6 @@
 /*********************************************************************
  *
- * $Id: YWireless.cpp 33710 2018-12-14 14:18:53Z seb $
+ * $Id: YWireless.cpp 33903 2018-12-28 08:49:26Z seb $
  *
  * Implements commands to handle Wireless functions
  *
@@ -541,6 +541,46 @@ public:
 };
 
 /**
+ * Returns the serial number of the module, as set by the factory.
+ *
+ * @return a string corresponding to the serial number of the module, as set by the factory.
+ *
+ * On failure, throws an exception or returns YModule.SERIALNUMBER_INVALID.
+ */
+class apifun_Wireless_get_serialNumber : public YapiCommand /* arguments: */
+{
+public:
+  apifun_Wireless_get_serialNumber(YFunctionCmdLine *function):YapiCommand(function){}
+
+  string getName()
+  {
+    return "get_serialNumber";
+  }
+
+  string getDescription()
+  {
+    return "Returns the serial number of the module, as set by the factory.";
+  }
+
+  vector<ArgumentDesc*>* getArgumentDesc()
+  {
+    vector<ArgumentDesc*>* res = new vector<ArgumentDesc*>();
+    return res;
+  }
+
+  virtual void execute(string target, vector<YModule*> *modulelist, string resultformat, vector<ArgumentDesc*>* args, vector<SwitchDesc*>* switches)
+  {
+    vector<YWireless*>* list = enumerateTargets<YWireless>(_function, target, modulelist);
+    unsigned int i;
+    for (i = 0; i < list->size(); i++)
+      {
+        string value = (*list)[i]->get_serialNumber();
+        PrintResult(resultformat, this->getName(),YFunctionInfoCache((*list)[i]), value, true);
+      }
+  }
+};
+
+/**
  * Triggers a scan of the wireless frequency and builds the list of available networks.
  * The scan forces a disconnection from the current network. At then end of the process, the
  * the network interface attempts to reconnect to the previous network. During the scan, the wlanState
@@ -837,6 +877,7 @@ void YWirelessCmdLine::RegisterCommands(vector<YapiCommand*>* cmdList)
     cmdList->push_back((YapiCommand*) (new Wireless_get_wlanState(this)));
     cmdList->push_back((YapiCommand*) (new apifun_Wireless_muteValueCallbacks(this)));
     cmdList->push_back((YapiCommand*) (new apifun_Wireless_unmuteValueCallbacks(this)));
+    cmdList->push_back((YapiCommand*) (new apifun_Wireless_get_serialNumber(this)));
     cmdList->push_back((YapiCommand*) (new apifun_Wireless_startWlanScan(this)));
     cmdList->push_back((YapiCommand*) (new apifun_Wireless_joinNetwork(this)));
     cmdList->push_back((YapiCommand*) (new apifun_Wireless_adhocNetwork(this)));

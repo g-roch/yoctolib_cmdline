@@ -1,6 +1,6 @@
 /*********************************************************************
  *
- *  $Id: YMotor.cpp 33710 2018-12-14 14:18:53Z seb $
+ *  $Id: YMotor.cpp 33903 2018-12-28 08:49:26Z seb $
  *
  *  Implements commands to handle Motor functions
  *
@@ -988,6 +988,46 @@ public:
 };
 
 /**
+ * Returns the serial number of the module, as set by the factory.
+ *
+ * @return a string corresponding to the serial number of the module, as set by the factory.
+ *
+ * On failure, throws an exception or returns YModule.SERIALNUMBER_INVALID.
+ */
+class apifun_Motor_get_serialNumber : public YapiCommand /* arguments: */
+{
+public:
+  apifun_Motor_get_serialNumber(YFunctionCmdLine *function):YapiCommand(function){}
+
+  string getName()
+  {
+    return "get_serialNumber";
+  }
+
+  string getDescription()
+  {
+    return "Returns the serial number of the module, as set by the factory.";
+  }
+
+  vector<ArgumentDesc*>* getArgumentDesc()
+  {
+    vector<ArgumentDesc*>* res = new vector<ArgumentDesc*>();
+    return res;
+  }
+
+  virtual void execute(string target, vector<YModule*> *modulelist, string resultformat, vector<ArgumentDesc*>* args, vector<SwitchDesc*>* switches)
+  {
+    vector<YMotor*>* list = enumerateTargets<YMotor>(_function, target, modulelist);
+    unsigned int i;
+    for (i = 0; i < list->size(); i++)
+      {
+        string value = (*list)[i]->get_serialNumber();
+        PrintResult(resultformat, this->getName(),YFunctionInfoCache((*list)[i]), value, true);
+      }
+  }
+};
+
+/**
  * Rearms the controller failsafe timer. When the motor is running and the failsafe feature
  * is active, this function should be called periodically to prove that the control process
  * is running properly. Otherwise, the motor is automatically stopped after the specified
@@ -1199,6 +1239,7 @@ void YMotorCmdLine::RegisterCommands(vector<YapiCommand*>* cmdList)
     cmdList->push_back((YapiCommand*) (new Motor_set_failSafeTimeout(this)));
     cmdList->push_back((YapiCommand*) (new apifun_Motor_muteValueCallbacks(this)));
     cmdList->push_back((YapiCommand*) (new apifun_Motor_unmuteValueCallbacks(this)));
+    cmdList->push_back((YapiCommand*) (new apifun_Motor_get_serialNumber(this)));
     cmdList->push_back((YapiCommand*) (new apifun_Motor_keepALive(this)));
     cmdList->push_back((YapiCommand*) (new apifun_Motor_resetStatus(this)));
     cmdList->push_back((YapiCommand*) (new apifun_Motor_drivingForceMove(this)));
